@@ -1,0 +1,11 @@
+<?php
+namespace {namespace};
+
+use Resources\MVC\Controller;
+
+class {name} extends Controller {
+    public function Index()
+    {
+        return $this->View();
+    }
+}

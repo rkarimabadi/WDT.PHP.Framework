@@ -1,0 +1,7 @@
+<?php
+namespace {namespace};
+
+use Resources\MVC\Model;
+
+class {name} extends Model {{tablename}{primarykey}
+}
