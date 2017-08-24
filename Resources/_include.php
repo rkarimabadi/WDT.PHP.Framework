@@ -1,4 +1,5 @@
 <?php
+include 'Path.php';
 $dirs = array('Http','Mvc');
 foreach($dirs as $dir) {
     $files = scandir(Root_Resources.$dir);

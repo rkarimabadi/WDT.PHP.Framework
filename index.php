@@ -1,8 +1,8 @@
 <?php
 ini_set('display_errors', 'On');
-include 'path.php';
-include 'config.php';
 include 'Resources/_include.php';
+
+include 'config.php';
 include 'bundles.php';
 include 'session.php';
 

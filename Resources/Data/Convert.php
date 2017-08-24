@@ -1,4 +1,6 @@
 <?php
+namespace Resources\Data;
+
 class Convert {
     public static function IntToDate($int) {
         return intval($int/10000).'/'.(intval($int/100)%100).'/'.($int%100);

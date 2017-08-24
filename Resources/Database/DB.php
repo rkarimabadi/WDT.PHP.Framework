@@ -89,4 +89,3 @@ abstract class DB {
     public static function fetchClass($query,$class,$parrameters = array()) {return self::fetch($query,\PDO::FETCH_CLASS,$parrameters,$class);}
     public static function fetchAllClass($query,$class,$parrameters = array()) {return self::fetchAll($query,\PDO::FETCH_CLASS,$parrameters,$class);}
 }
-DB::init();
