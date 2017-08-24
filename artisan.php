@@ -64,7 +64,7 @@ function copyDirectory($source, $destination)
     }
     $files = getFiles($source);
     foreach ($files as $file) {
-        if (in_array($file, array(".","..","artisan.php"))) {
+        if (in_array($file, array(".",".."))) {
             continue;
         }
         if (is_dir($source.$file)) {
