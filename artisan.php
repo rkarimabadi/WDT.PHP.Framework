@@ -57,9 +57,6 @@ function deleteDirectory($source)
 }
 function copyDirectory($source, $destination)
 {
-    $source .= '/';
-    $destination .= '/';
-    
     if (!is_dir($destination)) {
         createDirectory($destination);
     }
@@ -69,7 +66,7 @@ function copyDirectory($source, $destination)
             continue;
         }
         if (is_dir($source.$file)) {
-            copyDirectory($source.$file, $destination.$file);
+            copyDirectory($source.$file.'/', $destination.$file.'/');
         } else {
             copy($source.$file, $destination.$file);
         }
@@ -177,7 +174,7 @@ function project_new()
 function project_update()
 {
     $extract = ".update";
-    $folder = $extract.'/'.Repository.'-'.Branch;
+    $folder = $extract.'/'.Repository.'-'.Branch.'/';
     $filename = $extract."/temp.zip";
 
     createDirectory($extract);
