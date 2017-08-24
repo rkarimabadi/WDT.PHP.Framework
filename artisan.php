@@ -59,7 +59,7 @@ function deleteDirectory($source)
 }
 function copyDirectory($source, $destination)
 {
-    if (!is_dir($destination)) {
+    if (!file_exists($destination) || !is_dir($destination)) {
         createDirectory($destination);
     }
     $files = getFiles($source);
