@@ -1,7 +1,7 @@
 <?php
 namespace Resources\Mvc;
 
-use Resources\DB;
+use Resources\Database\DB;
 
 abstract class Model {
     public function getTbl() { $reflect = new \ReflectionClass($this); return $reflect->getShortName(); }

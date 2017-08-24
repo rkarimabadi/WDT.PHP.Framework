@@ -1,2 +1,2 @@
 # WDT.PHP.Framework
-MVC Framework
+Mvc Framework

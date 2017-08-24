@@ -57,21 +57,18 @@ function deleteDirectory($source)
     }
     rmdir($source);
 }
-function copyDirectory($source, $destination,$skips = array(".",".."))
+function copyDirectory($source, $destination,$overwrite = true)
 {
     if (!file_exists($destination) || !is_dir($destination)) {
         createDirectory($destination);
     }
     $files = getFiles($source);
     foreach ($files as $file) {
-        if (in_array($file, $skips)) {
-            continue;
-        }
+        if (in_array($file, array(".",".."))) continue;
         if (is_dir($source.$file)) {
             copyDirectory($source.$file.'/', $destination.$file.'/');
-        } else {
-            copy($source.$file, $destination.$file);
-        }
+        } 
+        elseif($overwrite || !file_exist($destination.$file)) copy($source.$file, $destination.$file);
     }
 }
 function createDirectory($path)
@@ -191,7 +188,7 @@ function project_update()
         error("Unable to open the Zip File");
     } else {
         $zip->extractTo($extract);
-        copyDirectory($folder, '');
+        copyDirectory($folder, '',false);
         $zip->close();
     }
     deleteDirectory($extract);

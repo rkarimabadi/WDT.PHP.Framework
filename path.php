@@ -90,12 +90,13 @@ define('This_Folder',This_Views.This_Controller.DIR_SEP);
 function spl_autoload_register_func($namespace) 
 {
     if(!class_exists($namespace)) {
-        $parts = explode('\\',$namespace);
+        $namespace = str_replace('\\','/',$namespace);
+        $parts = explode('/',$namespace);
         $first = $parts[0];
         $last = $parts[count($parts) - 1];
         if (file_exists(This_Models.$last.'.php')) include This_Models.$last.'.php';
         elseif (file_exists(Root_Areas.$first.'/Models/'.$last.'.php')) include Root_Areas.$first.'/Models/'.$last.'.php';
-        elseif (file_exists(Root_Resources.$namespace.'.php')) include Root_Resources.$namespace.'.php';
+        elseif (file_exists(Root.$namespace.'.php')) include Root.$namespace.'.php';
     }
 }
 spl_autoload_register('spl_autoload_register_func');

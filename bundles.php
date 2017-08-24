@@ -17,7 +17,7 @@ else
     if(file_exists(This_Folder.'Contents/'.This_Action.'.css')) Bundle::Add('Style',This_Folder_Http.'/Contents/'.This_Action.'.css');
 }
 
-if(file_exists(Root_Scripts.'script.js')) Bundle::Add(Root_Scripts_Http.'script.js');
+if(file_exists(Root_Scripts.'script.js')) Bundle::Add('Script',Root_Scripts_Http.'script.js');
 if(This_Area != null) 
 {
     if(file_exists(Root_Areas.This_Area.'/Scripts/script.js')) Bundle::Add('Script',Root_Areas_Http.This_Area.'Scripts/script.js');

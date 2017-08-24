@@ -1,7 +1,7 @@
 <?php
 ini_set('display_errors', 'On');
-include 'Path.php';
-include 'Config.php';
+include 'path.php';
+include 'config.php';
 include 'Resources/_include.php';
 include 'bundles.php';
 include 'session.php';
