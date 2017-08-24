@@ -57,6 +57,8 @@ function copyDirectory($source, $destination)
 {
     $source .= '/';
     $destination .= '/';
+    
+    if(!is_dir($destination)) createDirectory($destination);
     $files = scandir($source);
     foreach ($files as $file) {
         if (in_array($file, array(".",".."))) {
