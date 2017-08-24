@@ -49,10 +49,11 @@ function deleteDirectory($source)
     foreach ($files as $file) {
         if (is_dir($source.$file)) {
             deleteDirectory($source.$file);
-            rmdir($source.$file);
+            //rmdir($source.$file);
         } else {
-            unlink($source.$file);
+            //unlink($source.$file);
         }
+        echo $file."\r\n";
     }
 }
 function copyDirectory($source, $destination)
