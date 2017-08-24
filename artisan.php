@@ -56,6 +56,7 @@ function deleteDirectory($source)
 function copyDirectory($source, $destination)
 {
     $source .= '/';
+    $destination .= '/';
     $files = scandir($source);
     foreach ($files as $file) {
         if (in_array($file, array(".",".."))) {
