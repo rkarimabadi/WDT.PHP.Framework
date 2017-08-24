@@ -68,7 +68,7 @@ function copyDirectory($source, $destination,$overwrite = true)
         if (is_dir($source.$file)) {
             copyDirectory($source.$file.'/', $destination.$file.'/');
         } 
-        elseif($overwrite || !file_exist($destination.$file)) copy($source.$file, $destination.$file);
+        elseif($overwrite || !file_exists($destination.$file)) copy($source.$file, $destination.$file);
     }
 }
 function createDirectory($path)
