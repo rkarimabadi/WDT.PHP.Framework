@@ -1,4 +1,10 @@
 <?php
-include 'Http/_include.php';
-include 'Mvc/_include.php';
+$dirs = array('Http','Mvc');
+foreach($dirs as $dir) {
+    $files = scandir($dir);
+    foreach($files as $file) {
+        if(in_array($file,array('.','..'))) continue;
+        include $dir.'/'.$file;
+    }
+}
 ?>
