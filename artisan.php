@@ -50,7 +50,9 @@ function deleteDirectory($source)
         if (is_dir($source.$file)) {
             deleteDirectory($source.$file);
             rmdir($source.$file);
-        } else unlink($source.$file);
+        } else {
+            unlink($source.$file);
+        }
     }
 }
 function copyDirectory($source, $destination)
@@ -58,7 +60,9 @@ function copyDirectory($source, $destination)
     $source .= '/';
     $destination .= '/';
     
-    if(!is_dir($destination)) createDirectory($destination);
+    if (!is_dir($destination)) {
+        createDirectory($destination);
+    }
     $files = scandir($source);
     foreach ($files as $file) {
         if (in_array($file, array(".",".."))) {
@@ -71,20 +75,20 @@ function copyDirectory($source, $destination)
         }
     }
 }
-function createDirectory($path, $name = null)
+function createDirectory($path)
 {
-    if (!file_exists($path.$name)) {
-        mkdir($path.$name);
-        success("$name created.");
+    if (!file_exists($path)) {
+        mkdir($path, '');
+        success("$path created.");
     } else {
-        warning("$path$name already exists.");
+        warning("$path already exists.");
     }
 }
-function createFile($path, $name = null, $content = null, $overwrite = false)
+function createFile($path, $content = null, $overwrite = false)
 {
-    if ($overwrite || !file_exists($path.$name)) {
+    if ($overwrite || !file_exists($path)) {
         if (file_exists($path)) {
-            $file = fopen($path.$name, 'w');
+            $file = fopen($path, 'w');
             if (is_bool($file)) {
                 error("can not create file.");
             } else {
@@ -92,13 +96,13 @@ function createFile($path, $name = null, $content = null, $overwrite = false)
                     fwrite($file, $content);
                 }
                 fclose($file);
-                success("$name created.");
+                success("$path created.");
             }
         } else {
             error("Directory $path not exists.");
         }
     } else {
-        warning("$path$name already exists.");
+        warning("$path already exists.");
     }
 }
 /*--------------[Help]------------------*/
@@ -152,21 +156,21 @@ function createHelp($usage, array $arguments = [], array $options = [], $help = 
 /*--------------[Project]------------------*/
 function project_new()
 {
-    createDirectory(Root, 'Assets');
-    createDirectory(Root, 'Contents');
-    createDirectory(Root, 'Controllers');
-    createDirectory(Root, 'Fonts');
-    createDirectory(Root, 'Images');
-    createDirectory(Root, 'Layouts');
-    createDirectory(Root, 'Models');
-    createDirectory(Root, 'Scripts');
-    createDirectory(Root, 'Views');
+    createDirectory(Root. 'Assets');
+    createDirectory(Root. 'Contents');
+    createDirectory(Root. 'Controllers');
+    createDirectory(Root. 'Fonts');
+    createDirectory(Root. 'Images');
+    createDirectory(Root. 'Layouts');
+    createDirectory(Root. 'Models');
+    createDirectory(Root. 'Scripts');
+    createDirectory(Root. 'Views');
 
-    createFile(Root, '.htaccess', file_get_contents(Samples.'htaccess.txt'));
-    createFile(Root, 'config.php', file_get_contents(Samples.'config.txt'));
+    createFile(Root. '.htaccess', file_get_contents(Samples.'htaccess.txt'));
+    createFile(Root. 'config.php', file_get_contents(Samples.'config.txt'));
     
     if (in_array('-a', $argv)) {
-        createDirectory(Root, 'Areas');
+        createDirectory(Root. 'Areas');
     }
 }
 function project_update()
@@ -196,17 +200,17 @@ function project_update()
 /*--------------[Make]------------------*/
 function make_area($name)
 {
-    createDirectory('Areas/', $name);
+    createDirectory('Areas/'. $name);
     $path = 'Areas/'.$name.'/';
-    createDirectory($path, 'Contents');
+    createDirectory($path. 'Contents');
     //createFile($path.'Contents/','style.css');
-    createDirectory($path, 'Controllers');
-    createDirectory($path, 'Models');
-    createDirectory($path, 'Scripts');
+    createDirectory($path. 'Controllers');
+    createDirectory($path. 'Models');
+    createDirectory($path. 'Scripts');
     //createFile($path.'Scripts/','script.css');
-    createDirectory($path, 'Views');
-    createFile($path.'Views/', '_ViewBegin.php');
-    createFile($path.'Views/', '_ViewEnd.php');
+    createDirectory($path. 'Views');
+    createFile($path.'Views/_ViewBegin.php');
+    createFile($path.'Views/_ViewEnd.php');
 }
 function make_model($name, $params)
 {
@@ -219,7 +223,7 @@ function make_model($name, $params)
     $content = str_replace('{name}', $name, $content);
     $content = str_replace('{tablename}', $tablename, $content);
     $content = str_replace('{primarykey}', $primarykey, $content);
-    createFile($path, $name.'.php', $content);
+    createFile($path. $name.'.php', $content);
 }
 function make_controller($name, $params)
 {
@@ -227,14 +231,14 @@ function make_controller($name, $params)
     $vpath = (isset($params['-a']) ? 'Areas/'.$params['-a'].'/Views/' : 'Views/');
     $namespace = (isset($params['-a']) ? $params['-a'].'\Controllers' : 'Controllers');
 
-    createDirectory($vpath, $name);
-    createFile($vpath.$name.'/', 'Index.php', '');
+    createDirectory($vpath.$name);
+    createFile($vpath.$name.'/Index.php', '');
 
     $name = $name.'Controller';
     $content = file_get_contents(Samples.'Controller.txt');
     $content = str_replace('{namespace}', $namespace, $content);
     $content = str_replace('{name}', $name, $content);
-    createFile($cpath, $name.'.php', $content);
+    createFile($cpath. $name.'.php', $content);
 }
 /*--------------[Map]------------------*/
 function map_db($dbname, $params)
