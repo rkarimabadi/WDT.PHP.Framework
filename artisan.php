@@ -78,7 +78,7 @@ function copyDirectory($source, $destination)
 function createDirectory($path)
 {
     if (!file_exists($path)) {
-        mkdir($path, '');
+        mkdir($path, 0777);
         success("$path created.");
     } else {
         warning("$path already exists.");
@@ -96,6 +96,7 @@ function createFile($path, $content = null, $overwrite = false)
                     fwrite($file, $content);
                 }
                 fclose($file);
+                chmod($file, 0777); 
                 success("$path created.");
             }
         } else {
