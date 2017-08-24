@@ -4,7 +4,7 @@
 const Black = 30,Red = 31,Green = 32,Brown = 33,Blue = 34,Purple = 35,Cyan = 36,LightGray = 37,
 DarkGray = 30,LightRed = 31,LightGreen = 32,Yellow = 33,LightBlue = 34,LightPurple = 35,LightCyan = 36,White = 37;
 
-define('Samples', 'Resources/Samples/');
+define('Templates', 'Resources/Templates/');
 define('Github', 'https://github.com/sajadsalimzadeh/');
 define('Repository', 'WDT.PHP.Framework');
 define('Branch', 'master');
@@ -166,8 +166,8 @@ function project_new()
     createDirectory(Root. 'Scripts');
     createDirectory(Root. 'Views');
 
-    createFile(Root. '.htaccess', file_get_contents(Samples.'htaccess.txt'));
-    createFile(Root. 'config.php', file_get_contents(Samples.'config.txt'));
+    createFile(Root. '.htaccess', file_get_contents(Templates.'htaccess.txt'));
+    createFile(Root. 'config.php', file_get_contents(Templates.'config.txt'));
     
     if (in_array('-a', $argv)) {
         createDirectory(Root. 'Areas');
@@ -218,7 +218,7 @@ function make_model($name, $params)
     $namespace = (isset($params['-a']) ? $params['-a'].'' : 'Models');
     $tablename = (isset($params['-t']) ? "\n\tpublic function getTbl() {return '".$params['-t']."';}" : '');
     $primarykey = (isset($params['-p']) ? "\n\tpublic function getPK() {return '".$params['-p']."';}" : '');
-    $content = file_get_contents(Samples.'Models.txt');
+    $content = file_get_contents(Templates.'Models.txt');
     $content = str_replace('{namespace}', $namespace, $content);
     $content = str_replace('{name}', $name, $content);
     $content = str_replace('{tablename}', $tablename, $content);
@@ -235,7 +235,7 @@ function make_controller($name, $params)
     createFile($vpath.$name.'/Index.php', '');
 
     $name = $name.'Controller';
-    $content = file_get_contents(Samples.'Controller.txt');
+    $content = file_get_contents(Templates.'Controller.txt');
     $content = str_replace('{namespace}', $namespace, $content);
     $content = str_replace('{name}', $name, $content);
     createFile($cpath. $name.'.php', $content);
