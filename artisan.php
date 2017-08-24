@@ -42,28 +42,29 @@ function setForeColor($colorCode)
 }
 
 /*--------------[IO]------------------*/
+function getFiles($source) {
+    $files = scandir($source);
+    unset($files[0]);
+    unset($files[1]);
+    return $files;
+}
 function deleteDirectory($source)
 {
-    $source .= '/';
-    $files = scandir($source);
+    $files = getFiles($source);
     foreach ($files as $file) {
-        if (is_dir($source.$file)) {
-            deleteDirectory($source.$file);
-            //rmdir($source.$file);
-        } else {
-            //unlink($source.$file);
-        }
-        echo $file."\r\n";
+        if (is_dir($source.$file)) deleteDirectory($source.$file.'/');
+        else unlink($source.$file);
     }
+    rmdir($source);
 }
 function copyDirectory($source, $destination)
 {
     if (!is_dir($destination)) {
         createDirectory($destination);
     }
-    $files = scandir($source);
+    $files = getFiles($source);
     foreach ($files as $file) {
-        if (in_array($file, array(".",".."))) {
+        if (in_array($file, array(".","..","artisan.php"))) {
             continue;
         }
         if (is_dir($source.$file)) {
@@ -174,9 +175,9 @@ function project_new()
 }
 function project_update()
 {
-    $extract = ".update";
-    $folder = $extract.'/'.Repository.'-'.Branch.'/';
-    $filename = $extract."/temp.zip";
+    $extract = ".update/";
+    $folder = $extract.Repository.'-'.Branch.'/';
+    $filename = $extract."temp.zip";
 
     createDirectory($extract);
 
@@ -193,7 +194,7 @@ function project_update()
         copyDirectory($folder, '');
         $zip->close();
     }
-    //deleteDirectory($extract);
+    deleteDirectory($extract);
     success('Framework updated.');
 }
 /*--------------[Make]------------------*/
