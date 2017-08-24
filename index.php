@@ -1,13 +1,11 @@
 <?php
 ini_set('display_errors', 'On');
-include 'path.php';
-include 'config.php';
+
 include 'Resources/_include.php';
-include 'bundles.php';
-include 'session.php';
+include 'Bundles.php';
+include 'Session.php';
 
-
-use \Resources\MVC\Controller;
+use \Resources\Mvc\Controller;
 
 if(file_exists(Root_Areas.$area.'/Controllers/'.$controller.'Controller.php')) include Root_Areas.$area.'/Controllers/'.$controller.'Controller.php';
 elseif(file_exists(Root_Controllers.$controller.'Controller.php')) include Root_Controllers.$controller.'Controller.php';

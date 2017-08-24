@@ -1,5 +1,5 @@
 <?php
-namespace Resources\MVC;
+namespace Resources\Mvc;
 
 abstract class View {
 

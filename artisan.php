@@ -57,14 +57,14 @@ function deleteDirectory($source)
     }
     rmdir($source);
 }
-function copyDirectory($source, $destination)
+function copyDirectory($source, $destination,$skips = array(".",".."))
 {
     if (!file_exists($destination) || !is_dir($destination)) {
         createDirectory($destination);
     }
     $files = getFiles($source);
     foreach ($files as $file) {
-        if (in_array($file, array(".",".."))) {
+        if (in_array($file, $skips)) {
             continue;
         }
         if (is_dir($source.$file)) {

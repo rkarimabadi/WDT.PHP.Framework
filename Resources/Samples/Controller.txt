@@ -1,7 +1,7 @@
 <?php
 namespace {namespace};
 
-use Resources\MVC\Controller;
+use Resources\Mvc\Controller;
 
 class {name} extends Controller {
     public function Index()

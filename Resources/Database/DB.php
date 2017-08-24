@@ -1,5 +1,5 @@
 <?php
-namespace Resources\DB;
+namespace Resources\Database;
 
 abstract class DB {
     public static $conn;
