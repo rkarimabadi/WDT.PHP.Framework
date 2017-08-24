@@ -1,7 +1,0 @@
-<?php
-define('DB_Host','localhost');
-define('DB_Name','fea');
-define('DB_User','root');
-define('DB_Pass','');
-
-define('App_Version','1.0.0');

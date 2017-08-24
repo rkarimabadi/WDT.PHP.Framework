@@ -1,2 +1,0 @@
-<?php
-include 'Convert.php';
