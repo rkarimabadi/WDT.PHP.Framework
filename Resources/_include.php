@@ -1,5 +1,7 @@
 <?php
-include 'Path.php';
+include 'path.php';
+include 'config.php';
+include 'helper.php';
 $dirs = array('Http','Mvc');
 foreach($dirs as $dir) {
     $files = scandir(Root_Resources.$dir);
@@ -8,4 +10,6 @@ foreach($dirs as $dir) {
         include Root_Resources.$dir.'/'.$file;
     }
 }
+
+include 'bundles.php';
 ?>

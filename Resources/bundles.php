@@ -1,6 +1,4 @@
-<?php
-//Bundle::Add('WDT',Root_Assets_Http.'WDT/UI/style.css');
-//Bundle::Add('WDT',Root_Assets_Http.'WDT/UI/script.js');
+<?php 
 
 if(file_exists(Root_Contents.'style.css')) Bundle::Add('Style',Root_Contents_Http.'style.css');
 if(This_Area != null) 
@@ -30,5 +28,15 @@ else
     if(file_exists(Root_Scripts.This_Controller.'.js')) Bundle::Add('Script',Root_Scripts_Http.This_Controller.'.js');
     if(file_exists(This_Folder.'Contents/script.js')) Bundle::Add('Script',This_Folder_Http.'/Contents/script.js');
     if(file_exists(This_Folder.'Contents/'.This_Action.'.js')) Bundle::Add('Script',This_Folder_Http.'/Contents/'.This_Action.'.js');
+}
+
+if(file_exists(Root.'bundles.json')) {
+    $config = json_decode(file_get_contents(Root.'bundles.json'));
+    foreach($config as $name=>$arr) {
+        foreach($arr as $value) {
+            eval('$value = \''.str_replace('{{',"'.",str_replace('}}',".'",$value)).'\';');
+            Bundle::Add($name,$value);
+        }
+    }
 }
 ?>

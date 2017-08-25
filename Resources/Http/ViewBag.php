@@ -1,4 +1,5 @@
 <?php
+
 class ViewBag {
     private $data = array();
 

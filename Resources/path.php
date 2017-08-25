@@ -1,8 +1,8 @@
 <?php
-$root = str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace('\\','/',__DIR__.'/'));
+$root = str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace('\\','/',realpath('').'/'));
 define('DIR_SEP',DIRECTORY_SEPARATOR);
 define('Root_Http',($root[0] == '/' ? $root : '/'.$root));
-define('Root', __DIR__ . DIRECTORY_SEPARATOR);
+define('Root', realpath(''). DIRECTORY_SEPARATOR);
 
 define('Root_Areas_Http',Root_Http.'Areas/');
 define('Root_Areas',Root.'Areas'.DIR_SEP);
