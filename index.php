@@ -2,9 +2,7 @@
 ini_set('display_errors', 'On');
 include 'Resources/_include.php';
 
-include 'config.php';
-include 'bundles.php';
-include 'session.php';
+session_start();
 
 use \Resources\Mvc\Controller;
 

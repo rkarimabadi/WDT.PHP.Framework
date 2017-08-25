@@ -4,7 +4,8 @@
         "host":"localhost",
         "name":"dbname",
         "user":"root",
-        "pass":""
+        "pass":"",
+        "exception":"{{PDO::ERRMODE_EXCEPTION}}"
     },
     "app": {
         "version":"1.0.0",

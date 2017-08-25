@@ -8,12 +8,12 @@ abstract class DB {
     private static $throwException = true;
     private static $statement;
 
-    public static function init($host = DB_Host, $dbname = DB_Name, $username = DB_User, $password = DB_Pass)
+    public static function init($host = Db_Host, $dbname = Db_Name, $username = Db_User, $password = Db_Pass)
     {
         try {
             DB::$conn = new \PDO("mysql:host=$host;dbname=$dbname",$username,$password);
             DB::$conn->exec('SET NAMES UTF8; SET sql_mode = "ALLOW_INVALID_DATES";');
-            DB::$conn->setAttribute(\PDO::ATTR_ERRMODE, DB_Exception);
+            DB::$conn->setAttribute(\PDO::ATTR_ERRMODE, Db_Exception);
         } catch (\PDOException $ex) { die($ex->getMessage()); }
     }
     private static function parameterInitializer(\PDOStatement &$statement,array &$parameters) {
