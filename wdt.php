@@ -5,12 +5,44 @@ DarkGray = 30,LightRed = 31,LightGreen = 32,Yellow = 33,LightBlue = 34,LightPurp
 
 define('Templates', 'Resources/Templates/');
 define('COLOR',is_bool(strpos('Windows',php_uname('s'))));
-echo is_bool(strpos('Windows',php_uname('s')));
 define('Root', str_replace('\\', '/', __DIR__.'/'));
+
+$error = error_reporting();
+error_reporting(E_ERROR | E_PARSE);
+function getoptions() {
+    global $argv,$argc;
+    $options = array();
+    for($i = 0;$i < $argc;$i++) {
+        $arg = $argv[$i];
+        if(strlen($arg) > 1 && $arg[0] == '-') {
+            if($arg[1] == '-') {
+                $options[substr($arg,2,strlen($arg))] = ($i + 1 < $argc && $argv[$i + 1][0] != '-' ? $argv[++$i] : true); 
+            }
+            else {
+                $value = substr($arg,2,strlen($arg));
+                $options[$arg[1]] = (is_bool($value) ? true : $value);
+            }
+        }
+    }
+    return $options;
+}
+function getargument() {
+    global $argv,$argc;
+    if($argc > 1) {
+        $value = $argv[1];
+        if($value[0] != '-') {
+            array_splice($argv,1,1);
+            $argc--;
+            return $value;
+        }
+    }
+}
+$options = getoptions();
 /*--------------[Message]------------------*/
 function error($message) { setForeColor(Red); echo 'error: '; resetForeColor(); echo $message."\n"; }
 function success($message) { setForeColor(Green); echo 'success: '; resetForeColor(); echo $message."\n"; }
 function warning($message) { setForeColor(Yellow); echo 'warning: '; resetForeColor(); echo $message."\n"; }
+function notrecognize($message) { setForeColor(Red); echo 'not recognize: '; resetForeColor(); echo $message."\n"; }
 function resetForeColor() {echo (COLOR ? "\033[" : "").LightGray."m";}
 function setForeColor($colorCode) {echo (COLOR ? "\033[" : "").$colorCode."m";}
 /*--------------[IO]------------------*/
@@ -43,30 +75,34 @@ function copyDirectory($source, $destination,$overwrite = true)
 }
 function createDirectory($path)
 {
-    if (!file_exists($path)) {
-        mkdir($path, 0777);
-        success("$path created.");
-    } else {
-        warning("$path already exists.");
+    try {
+        if (!file_exists($path)) {
+            if(mkdir($path, 0777)) success("$path created.");
+            else error("can not create directory $path."); 
+        } else {
+            warning("$path already exists.");
+        }
     }
+    catch(Exception $e) { error("create directory $path failed , ".$ex->getMessage()); }
 }
 function createFile($path, $content = null, $overwrite = false)
 {
-    if ($overwrite || !file_exists($path)) {
-        $file = fopen($path, 'w');
-        if (is_bool($file)) {
-            error("can not create file.");
+    try {
+        if ($overwrite || !file_exists($path)) {
+            $file = fopen($path, 'w');
+            if ($file) {
+                if ($content != null) {
+                    fwrite($file, $content);
+                }
+                fclose($file);
+                chmod($path, 0777); 
+                success("$path created.");
+            } else error("can not create file $path.");
         } else {
-            if ($content != null) {
-                fwrite($file, $content);
-            }
-            fclose($file);
-            chmod($path, 0777); 
-            success("$path created.");
+            warning("$path already exists.");
         }
-    } else {
-        warning("$path already exists.");
     }
+    catch(Exception $e) { error("create directory $path failed , ".$ex->getMessage()); }
 }
 /*--------------[Help]------------------*/
 function help_string($str,$left = 3,$length = 25) {
@@ -94,14 +130,20 @@ function help($usage, array $options = [])
 /*--------------[WDT]------------------*/
 define('Version','1.0.0');
 
-function wdt_usage() {
-    $options = getopt('hv',array('version','help','new','update','make','map'));
-    if(isset($options['v']) || isset($options['version'])) wdt_version();
-    elseif(isset($options['h']) || isset($options['help'])) wdt_help();
-    elseif(isset($options['new'])) new_usage();
-    elseif(isset($options['update'])) update_usage();
-    elseif(isset($options['make'])) make_usage();
-    elseif(isset($options['map'])) map_usage();
+function wdt() {
+    global $options;
+    $arg = getargument();
+    if($arg != null) {
+        if ($arg == 'new') new_usage();
+        elseif ($arg == 'update') update_usage();
+        elseif ($arg == 'make') make_usage();
+        elseif ($arg == 'map') map_usage();
+        else notrecognize($arg);
+    }
+    else {
+        if(isset($options['v']) || isset($options['version'])) wdt_version();
+        elseif(isset($options['h']) || isset($options['help'])) wdt_help();
+    }
 }
 function wdt_help() {
     help(
@@ -115,7 +157,7 @@ function wdt_help() {
 function wdt_version() { echo Version."\r\n"; }
 /*--------------[New]------------------*/
 function new_usage() {
-    $options = getopt('h',array('help'));
+    global $options;
     if(isset($options['h']) || isset($options['help'])) new_help();
     else new_project();
 }
@@ -124,12 +166,15 @@ function new_help() {
         'php wdt new [Options]',
         array(
             '-h , --help'=>'',
-            '-a , --areas'=>'Areas Folder',
+            '-a , --areas'=>'Create Areas Folder',
+            '-f , --fonts'=>'Create Fonts Folder',
+            '-i , --images'=>'Create Images Folder',
+            '-l , --'=>'Create Layouts Folder',
         )
     );
 }
 function new_project() {
-    $options = getopt('a',array('areas'));
+    global $options;
 
     createDirectory(Root. 'Assets');
     createDirectory(Root. 'Contents');
@@ -153,8 +198,7 @@ define('Repository', 'WDT.PHP.Framework');
 define('Branch', 'master');
 
 function update_usage() {
-    $options = getopt('h::',array('help::'));
-    var_dump($options);
+    global $options;
     if(isset($options['h']) || isset($options['help'])) update_help();
     else update_project();
 }
@@ -192,21 +236,31 @@ function update_project()
 }
 /*--------------[Make]------------------*/
 function make_usage() {
-    if ($second == 'area') {
-        make_area($argv[2]);
-    } elseif ($second == 'model') {
-        if ($countv > 2) {
-            make_model($argv[2], $params);
-        } else {
-            warning('please enter name like this -> make:model [name]');
-        }
-    } elseif ($second == 'controller') {
-        if ($countv > 2) {
-            make_controller($argv[2], $params);
-        } else {
-            warning('please enter name like this -> make:controller [name]');
-        }
-    }
+    global $argv,$argc,$options;
+    $arg = getargument();
+    if ($arg == 'area') make_area_usage();
+    elseif ($arg == 'model') make_model_usage();
+    elseif ($arg == 'controller') make_controller_usage();
+    elseif (isset($options['h']) || isset($options['help'])) make_help();
+    else make_help();
+}
+function make_help() {
+    help(
+        'php wdt make [area,model,controller]'
+    );
+}
+function make_area_usage() {
+    $arg = getargument();
+    if($arg != null) make_area($arg);
+    else make_area_help();
+}
+function make_area_help() {
+    help(
+        'php wdt make area [Requirements: name] [Options]',
+        array(
+            '-h , --help'=>''
+        )
+    );
 }
 function make_area($name)
 {
@@ -220,89 +274,107 @@ function make_area($name)
     createFile($path.'Views/_ViewBegin.php');
     createFile($path.'Views/_ViewEnd.php');
 }
-function make_model($name, $params)
+function make_model_usage() {
+    $arg = getargument();
+    if($arg != null) make_model($arg);
+    else make_area_help();
+}
+function make_model_help() {
+    help(
+        'php wdt make model [Requirements: name] [Options]',
+        array(
+            '-h , --help'=>'',
+            '-a , --area'=>'in wich area do you want to make?',
+            '-t , --tablename'=>'',
+            '-p , --primarykey'=>''
+        )
+    );
+}
+function make_model($name)
 {
-    $path = (isset($params['-a']) ? 'Areas/'.$params['-a'].'/Models/' : 'Models/');
-    $namespace = (isset($params['-a']) ? $params['-a'].'' : 'Models');
-    $tablename = (isset($params['-t']) ? "\n\tpublic function getTbl() {return '".$params['-t']."';}" : '');
-    $primarykey = (isset($params['-p']) ? "\n\tpublic function getPK() {return '".$params['-p']."';}" : '');
-    $content = file_get_contents(Templates.'Models.txt');
+    $options = getoptions();
+    $path = (isset($options['a']) ? 'Areas/'.$options['a'].'/Models/' : 'Models/');
+    $namespace = (isset($options['a']) ? $options['a'].'' : 'Models');
+    $tablename = (isset($options['t']) ? "\n\tpublic function getTbl() {return '".$options['t']."';}" : '');
+    $primarykey = (isset($options['p']) ? "\n\tpublic function getPK() {return '".$options['p']."';}" : '');
+    $content = file_get_contents(Templates.'Models.php');
     $content = str_replace('{namespace}', $namespace, $content);
     $content = str_replace('{name}', $name, $content);
     $content = str_replace('{tablename}', $tablename, $content);
     $content = str_replace('{primarykey}', $primarykey, $content);
     createFile($path. $name.'.php', $content);
 }
-function make_controller($name, $params)
+function make_controller_usage() {
+    $arg = getargument();
+    if($arg != null) make_controller($arg);
+    else make_area_help();
+}
+function make_controller_help() {
+    help(
+        'php wdt make area [Requirements: name] [Options]',
+        array(
+            '-h , --help'=>'',
+            '-a , --area'=>'in wich area do you want to make?',
+        )
+    );
+}
+function make_controller($name)
 {
-    $cpath = (isset($params['-a']) ? 'Areas/'.$params['-a'].'/Controllers/' : 'Controllers/');
-    $vpath = (isset($params['-a']) ? 'Areas/'.$params['-a'].'/Views/' : 'Views/');
-    $namespace = (isset($params['-a']) ? $params['-a'].'\Controllers' : 'Controllers');
+    $area = (isset($options['a']) ? $options['a'] : (isset($options['area']) ? $options['area'] : null));
+
+    $options = getoptions();
+    $cpath = ($area != null ? 'Areas/'.$area.'/Controllers/' : 'Controllers/');
+    $vpath = ($area != null ? 'Areas/'.$area.'/Views/' : 'Views/');
+    $namespace = ($area != null ? $area.'\Controllers' : 'Controllers');
 
     createDirectory($vpath.$name);
     createFile($vpath.$name.'/Index.php', '');
 
     $name = $name.'Controller';
-    $content = file_get_contents(Templates.'Controller.txt');
+    $content = file_get_contents(Templates.'Controller.php');
     $content = str_replace('{namespace}', $namespace, $content);
     $content = str_replace('{name}', $name, $content);
     createFile($cpath. $name.'.php', $content);
 }
 /*--------------[Map]------------------*/
 function map_usage() {
-    global $argv,$argc;
-    if($argc == 2) 
-    if ($second == 'db') {
-        if ($countv > 2) {
-            if (isset($params['-u']) && isset($params['-p'])) {
-                map_db($argv[2], $params);
-            } else {
-                warning('please enter username and password');
-            }
-        } else {
-            warning('please enter dbname like this -> map:db [name]');
-        }
+    global $argv,$argc,$options;
+    if($argc > 2) { 
+        if ($argv[2] == 'db') map_db();
+        if (isset($options['h']) || isset($options['help'])) map_help();
     }
 }
-function map_help() {}
-function map_db($dbname, $params)
+function map_help() {
+    help(
+        'php wdt map [db]',
+        array(
+            '-h , -help'
+        )
+    );
+}
+function map_db()
 {
-    $host = (isset($params['-h']) ? $params['-h'] : 'localhost');
-    $like = (isset($params['-l']) ? $params['-l'] : '%');
-    $search = (isset($params['-s']) ? $params['-s'] : '');
-    $replace = (isset($params['-r']) ? $params['-r'] : '');
-    $area = (isset($params['-a']) ? $params['-a'] : null);
-    try {
-        $conn = new PDO("mysql:host=$host;database=$dbname", $params['-u'], $params['-p']);
-        $filename = basename(__FILE__);
-        $column = "Tables_in_$dbname";
-        unset($params['-p']);
-        $statement = $conn->prepare("SHOW TABLES FROM $dbname WHERE $column LIKE '$like';");
-        $statement->execute();
-        $tables = $statement->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($tables as $table) {
-            $tablename = $table[$column];
-            $name = str_replace($search, $replace, $tablename);
-            if ($tablename != $name) {
-                $params['-t'] = $tablename;
-            } else {
-                unset($params['-t']);
+    $options = getopt('duplsra');
+    if(isset($options['d'],$options['u'],$options['p'])) {
+        try {
+            $conn = new PDO("mysql:host=$host;database=$dbname", $options['-u'], $options['-p']);
+            $column = "";
+            $statement = $conn->prepare("SHOW TABLES FROM $dbname WHERE Tables_in_$options[d] LIKE '".(isset($options['l']) ? $options['l'] : "%")."';");
+            $statement->execute();
+            $tables = $statement->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($tables as $table) {
+                $tablename = $table[$column];
+                $name = str_replace($search, $replace, $tablename);
+                make_model($name);
+                make_controller($name);
             }
-            make_model($name, $params);
-            make_controller($name, $params);
+        } catch (PDOException $ex) {
+            error($ex->getMessage());
         }
-    } catch (PDOException $ex) {
-        error($ex->getMessage());
     }
+    else error('please username and password');
 }
 
 /*--------------[Program]------------------*/
-echo php_uname('s');
-if ($argc == 1) wdt_help();
-else {
-    if ($argv[1] == '--new') new_usage();
-    elseif ($argv[1] == '--update') update_usage();
-    elseif ($argv[1] == '--make') make_usage();
-    elseif ($argv[1] == '--map') map_usage();
-    else wdt_usage();
-}
+wdt();
+error_reporting($error);
