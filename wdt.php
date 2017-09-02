@@ -136,18 +136,18 @@ function wdt() {
     if($arg != null) {
         if ($arg == 'new') new_usage();
         elseif ($arg == 'update') update_usage();
-        elseif ($arg == 'make') make_usage();
         elseif ($arg == 'map') map_usage();
         else notrecognize($arg);
     }
     else {
         if(isset($options['v']) || isset($options['version'])) wdt_version();
         elseif(isset($options['h']) || isset($options['help'])) wdt_help();
+        else wdt_help();
     }
 }
 function wdt_help() {
     help(
-        'php wdt [new,make,map,install,update] [Arguments] [Options]',
+        'php wdt [new,map,install,update] [Arguments] [Options]',
         array(
             '-h , --help'=>'',
             '-v , --version'=>'version',
@@ -158,12 +158,38 @@ function wdt_version() { echo Version."\r\n"; }
 /*--------------[New]------------------*/
 function new_usage() {
     global $options;
-    if(isset($options['h']) || isset($options['help'])) new_help();
-    else new_project();
+    $arg = getargument();
+    if($arg) 
+    {
+        if ($arg == 'project') new_project_usage();
+        elseif ($arg == 'area') new_area_usage();
+        elseif ($arg == 'model') new_model_usage();
+        elseif ($arg == 'controller') new_controller_usage();
+        else notrecognize($arg);
+    }
+    else 
+    {
+        if(isset($options['h']) || isset($options['help'])) new_help();
+        else new_project();
+    }
+    
 }
 function new_help() {
     help(
-        'php wdt new [Options]',
+        'php wdt new [project,area,model,controller,view] [Options]',
+        array(
+            '-h , --help'=>''
+        )
+    );
+}
+function new_project_usage() {
+    global $options;
+    if(isset($options['h']) || isset($options['help'])) new_project_help();
+    else new_project();
+}
+function new_project_help() {
+    help(
+        'php wdt new project [Options]',
         array(
             '-h , --help'=>'',
             '-a , --areas'=>'Create Areas Folder',
@@ -178,8 +204,13 @@ function new_project() {
 
     createDirectory(Root. 'Assets');
     createDirectory(Root. 'Contents');
+
     createDirectory(Root. 'Controllers');
+    new_controller('Home');
+
     createDirectory(Root. 'Models');
+    new_model('User');
+
     createDirectory(Root. 'Scripts');
     createDirectory(Root. 'Views');
 
@@ -191,6 +222,95 @@ function new_project() {
     if (isset($options['f'])) createDirectory(Root. 'Fonts');
     if (isset($options['i'])) createDirectory(Root. 'Images');
     if (isset($options['l'])) createDirectory(Root. 'Layouts');
+}
+function new_area_usage() {
+    $arg = getargument();
+    if($arg != null) new_area($arg);
+    else new_area_help();
+}
+function new_area_help() {
+    help(
+        'php wdt new area [Requirements: name] [Options]',
+        array(
+            '-h , --help'=>''
+        )
+    );
+}
+function new_area($name)
+{
+    if(file_exists(Root.'Areas')) {
+        createDirectory('Areas/'. $name);
+        $path = 'Areas/'.$name.'/';
+        createDirectory($path. 'Contents');
+        createDirectory($path. 'Controllers');
+        createDirectory($path. 'Models');
+        createDirectory($path. 'Scripts');
+        createDirectory($path. 'Views');
+        createFile($path.'Views/_ViewBegin.php');
+        createFile($path.'Views/_ViewEnd.php');
+    } else warning('first create Areas directory.');
+}
+function new_model_usage() {
+    $arg = getargument();
+    if($arg != null) new_model($arg);
+    else new_model_help();
+}
+function new_model_help() {
+    help(
+        'php wdt new model [Requirements: name] [Options]',
+        array(
+            '-h , --help'=>'',
+            '-a , --area'=>'in wich area do you want to create?',
+            '-t , --tablename'=>'',
+            '-p , --primarykey'=>''
+        )
+    );
+}
+function new_model($name)
+{
+    $options = getoptions();
+    $path = (isset($options['a']) ? 'Areas/'.$options['a'].'/Models/' : 'Models/');
+    $namespace = (isset($options['a']) ? $options['a'].'' : 'Models');
+    $tablename = (isset($options['t']) ? "\n\tpublic function getTbl() {return '".$options['t']."';}" : '');
+    $primarykey = (isset($options['p']) ? "\n\tpublic function getPK() {return '".$options['p']."';}" : '');
+    $content = file_get_contents(Templates.'Models.php');
+    $content = str_replace('{namespace}', $namespace, $content);
+    $content = str_replace('{name}', $name, $content);
+    $content = str_replace('{tablename}', $tablename, $content);
+    $content = str_replace('{primarykey}', $primarykey, $content);
+    createFile($path. $name.'.php', $content);
+}
+function new_controller_usage() {
+    $arg = getargument();
+    if($arg != null) new_controller($arg);
+    else new_controller_help();
+}
+function new_controller_help() {
+    help(
+        'php wdt make area [Requirements: name] [Options]',
+        array(
+            '-h , --help'=>'',
+            '-a , --area'=>'in wich area do you want to create?',
+        )
+    );
+}
+function new_controller($name)
+{
+    $area = (isset($options['a']) ? $options['a'] : (isset($options['area']) ? $options['area'] : null));
+
+    $options = getoptions();
+    $cpath = ($area != null ? 'Areas/'.$area.'/Controllers/' : 'Controllers/');
+    $vpath = ($area != null ? 'Areas/'.$area.'/Views/' : 'Views/');
+    $namespace = ($area != null ? $area.'\Controllers' : 'Controllers');
+
+    createDirectory($vpath.$name);
+    createFile($vpath.$name.'/Index.php', '');
+
+    $name = $name.'Controller';
+    $content = file_get_contents(Templates.'Controller.php');
+    $content = str_replace('{namespace}', $namespace, $content);
+    $content = str_replace('{name}', $name, $content);
+    createFile($cpath. $name.'.php', $content);
 }
 /*--------------[Update]------------------*/
 define('Github', 'https://github.com/sajadsalimzadeh/');
@@ -235,107 +355,7 @@ function update_project()
     success('Framework updated.');
 }
 /*--------------[Make]------------------*/
-function make_usage() {
-    global $argv,$argc,$options;
-    $arg = getargument();
-    if ($arg == 'area') make_area_usage();
-    elseif ($arg == 'model') make_model_usage();
-    elseif ($arg == 'controller') make_controller_usage();
-    elseif (isset($options['h']) || isset($options['help'])) make_help();
-    else make_help();
-}
-function make_help() {
-    help(
-        'php wdt make [area,model,controller]'
-    );
-}
-function make_area_usage() {
-    $arg = getargument();
-    if($arg != null) make_area($arg);
-    else make_area_help();
-}
-function make_area_help() {
-    help(
-        'php wdt make area [Requirements: name] [Options]',
-        array(
-            '-h , --help'=>''
-        )
-    );
-}
-function make_area($name)
-{
-    createDirectory('Areas/'. $name);
-    $path = 'Areas/'.$name.'/';
-    createDirectory($path. 'Contents');
-    createDirectory($path. 'Controllers');
-    createDirectory($path. 'Models');
-    createDirectory($path. 'Scripts');
-    createDirectory($path. 'Views');
-    createFile($path.'Views/_ViewBegin.php');
-    createFile($path.'Views/_ViewEnd.php');
-}
-function make_model_usage() {
-    $arg = getargument();
-    if($arg != null) make_model($arg);
-    else make_area_help();
-}
-function make_model_help() {
-    help(
-        'php wdt make model [Requirements: name] [Options]',
-        array(
-            '-h , --help'=>'',
-            '-a , --area'=>'in wich area do you want to make?',
-            '-t , --tablename'=>'',
-            '-p , --primarykey'=>''
-        )
-    );
-}
-function make_model($name)
-{
-    $options = getoptions();
-    $path = (isset($options['a']) ? 'Areas/'.$options['a'].'/Models/' : 'Models/');
-    $namespace = (isset($options['a']) ? $options['a'].'' : 'Models');
-    $tablename = (isset($options['t']) ? "\n\tpublic function getTbl() {return '".$options['t']."';}" : '');
-    $primarykey = (isset($options['p']) ? "\n\tpublic function getPK() {return '".$options['p']."';}" : '');
-    $content = file_get_contents(Templates.'Models.php');
-    $content = str_replace('{namespace}', $namespace, $content);
-    $content = str_replace('{name}', $name, $content);
-    $content = str_replace('{tablename}', $tablename, $content);
-    $content = str_replace('{primarykey}', $primarykey, $content);
-    createFile($path. $name.'.php', $content);
-}
-function make_controller_usage() {
-    $arg = getargument();
-    if($arg != null) make_controller($arg);
-    else make_area_help();
-}
-function make_controller_help() {
-    help(
-        'php wdt make area [Requirements: name] [Options]',
-        array(
-            '-h , --help'=>'',
-            '-a , --area'=>'in wich area do you want to make?',
-        )
-    );
-}
-function make_controller($name)
-{
-    $area = (isset($options['a']) ? $options['a'] : (isset($options['area']) ? $options['area'] : null));
 
-    $options = getoptions();
-    $cpath = ($area != null ? 'Areas/'.$area.'/Controllers/' : 'Controllers/');
-    $vpath = ($area != null ? 'Areas/'.$area.'/Views/' : 'Views/');
-    $namespace = ($area != null ? $area.'\Controllers' : 'Controllers');
-
-    createDirectory($vpath.$name);
-    createFile($vpath.$name.'/Index.php', '');
-
-    $name = $name.'Controller';
-    $content = file_get_contents(Templates.'Controller.php');
-    $content = str_replace('{namespace}', $namespace, $content);
-    $content = str_replace('{name}', $name, $content);
-    createFile($cpath. $name.'.php', $content);
-}
 /*--------------[Map]------------------*/
 function map_usage() {
     global $argv,$argc,$options;
@@ -365,8 +385,8 @@ function map_db()
             foreach ($tables as $table) {
                 $tablename = $table[$column];
                 $name = str_replace($search, $replace, $tablename);
-                make_model($name);
-                make_controller($name);
+                new_model($name);
+                new_controller($name);
             }
         } catch (PDOException $ex) {
             error($ex->getMessage());
