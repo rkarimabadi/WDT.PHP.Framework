@@ -1,0 +1,28 @@
+{
+    "db": {
+        "driver":"mysql",
+        "host":"localhost",
+        "name":"dbname",
+        "user":"root",
+        "pass":"",
+        "exception":"{{PDO::ERRMODE_EXCEPTION}}"
+    },
+    "app": {
+        "version":"1.0.0",
+        "cache":"{{time()}}",
+        "name":"app1",
+        "site":"http://webdevtoolkit.ir"
+    },
+    "pdc": {
+        "name":"wdt",
+        "site":"http://webdevtoolkit.ir"
+    },
+    "err": {
+        "404":"{{Root_Http}}Error/Err_404",
+        "500":"{{Root_Http}}Error/Err_500",
+        "controller":"{{Root_Http}}Error/Err_404",
+        "action":"{{Root_Http}}Error/Err_404",
+        "view":"{{Root_Http}}Error/Err_404",
+        "layout":"{{Root_Http}}Error/Err_404"
+    }
+}
