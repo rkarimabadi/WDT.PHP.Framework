@@ -1,2 +1,2 @@
 # WDT.PHP.Framework
-Mvc Framework
+A light-weight PHP Mvc Framework.
